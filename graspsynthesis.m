@@ -44,12 +44,12 @@ w2 = sqrt((Ay-Cy)^2+(Ax-Cx)^2);
 w = min(w1,w2);
 
 %Size of steps aling each edge
-stepsize = 0.2;%Step for iterating along both sides
-mu = 0.9; %Friction coeficient
+stepsize = 0.1;%Step for iterating along both sides
+mu = 0.7; %Friction coeficient
 good = 0; %Number of good grasps
 antip = 0;
 
-for theta = 0:0.3:1.5 %Theta angle, that also varies
+for theta = 0.1:0.3:1 %Theta angle, that also varies
 %Vertice coordinates after rotation theta
 Axr = cos(theta)*(Ax-Cx) - sin(theta)*(Ay-Cy) + Cx;
 Ayr = sin(theta)*(Ax-Cx) + cos(theta)*(Ay-Cy) + Cy;
@@ -61,19 +61,31 @@ Dxr = cos(theta)*(Dx-Cx) - sin(theta)*(Dy-Cy) + Cx;
 Dyr = sin(theta)*(Dx-Cx) + cos(theta)*(Dy-Cy) + Cy;
     
 %Vary points along both edges
-L1= discretizeLine([Axr Ayr], [Bxr Byr], stepsize);
-L2= discretizeLine([Cxr Cyr], [Dxr Dyr], stepsize);
-iterations = size(L1,1);%Number of discretized points
-xf1r = L1(:,1);
-yf1r = L1(:,2);
-xf2r = L2(:,1);
-yf2r = L2(:,2);
+N = 10;
+L1x = linspace(Axr,Bxr,N);
+L2x = linspace(Cxr,Dxr,N);
+L1y = linspace(Ayr,Byr,N);
+L2y = linspace(Cyr,Dyr,N);
+
+% L1= discretizeLine([Axr Ayr], [Bxr Byr], stepsize);
+% L2= discretizeLine([Cxr Cyr], [Dxr Dyr], stepsize);
+% iterations = size(L1,1);%Number of discretized points
+iterations = N
+% xf1r = L1(:,1);
+% yf1r = L1(:,2);
+% xf2r = L2(:,1);
+% yf2r = L2(:,2);
+
+xf1r = L1x;
+yf1r = L1y;
+xf2r = L2x;
+yf2r = L2y;
 
 xcmr = cos(theta)*(xcm-Cx) - sin(theta)*(ycm-Cy) + Cx;
 ycmr = sin(theta)*(xcm-Cx) + cos(theta)*(ycm-Cy) + Cy;
-
-    for i = 1:iterations-1 %Loop for varying point finger 2
-        for j = 1:iterations-1 %Loop for varying point finger 1 
+%  i = 5;j=iterations;
+      for i = 1:iterations %Loop for varying point finger 2
+          for j = 1:iterations %Loop for varying point finger 1 
 
         %Test for antipodal grasps
         
@@ -143,10 +155,10 @@ ycmr = sin(theta)*(xcm-Cx) + cos(theta)*(ycm-Cy) + Cy;
         %If not antipodal grasp, try to see if it is feasible through Linear Programming 
         else
             rx1 = xf1r(j) - xcmr;
-            ry1 = yf1r(j) - xcmr;
+            ry1 = yf1r(j) - ycmr;
             rx2 = xcmr - xf2r(i);
             ry2 = ycmr - yf2r(i);
-            [Forces,fval,flag,contact] = isfeasible({[Axr Ayr],[Bxr Byr],[Cxr Cyr],[Dxr Dyr]},theta,[xcmr ycmr],{[rx1 ry1],[rx2 ry2]},{[xf1r(j) yf1r(j)],[xf2r(i) yf2r(i)]},mu);
+            [Forces,fval,flag,contact] = isfeasible({[Axr Ayr],[Bxr Byr],[Cxr Cyr],[Dxr Dyr]},theta,[xcmr ycmr],{[rx1 ry1],[rx2 ry2]},{[xf1r(j) yf1r(j)],[xf2r(i) yf2r(i)]},mu)
          
             if((flag>0)&&(contact~=1)) %successful grasp, so save the finger positions and plot
                 good = good + 1;   
@@ -166,9 +178,9 @@ ycmr = sin(theta)*(xcm-Cx) + cos(theta)*(ycm-Cy) + Cy;
             fprintf('No configuration possible \n')
             end
         end
-       end 
-   end   
-end
+        end 
+    end   
+      end
 
 figure
 hold on
@@ -179,4 +191,5 @@ plot3(f1disan',f2disan',thetan', '+', 'linewidth',3)
 xlabel('AB')
 ylabel('CD')
 zlabel('Theta')
-fprintf('Stable Grasps: %d \n',good)
+total = antip+good;
+fprintf('Stable Grasps: %d \n',total)

@@ -6,8 +6,8 @@ C1 = det([(Cone1n-p1);(p2-p1)]);
 C2 = det([(Cone1p-p1); (p2-p1)]);
 C3 = det([(Cone2n-p2);(p1-p2)]);
 C4 = det([(Cone2p-p2) ; (p1-p2)]);
-
-if((C1>0)&&(C2<0)&&(C3>0)&&(C4<0))
+threshold = 0.001; %Threshold to avoid rounding errors
+if((C1>threshold)&&(C2<-threshold)&&(C3>threshold)&&(C4<-threshold))
 antipodal = 1;
 else
 antipodal = 0;

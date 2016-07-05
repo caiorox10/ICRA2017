@@ -29,14 +29,36 @@ Dyr = Pr{4}(2);
 xcmr = CM(1);%Center of Mass Coordinates
 ycmr = CM(2);
 
-%Matrices for Linear Programming
+% %Matrices for Linear Programming
+% if((rx1>0)&&(rx2<0))
+%     Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
+%         -cos(theta) cos(theta) sin(theta) sin(theta)
+%        (-cos(theta)*abs(rx1) - sin(theta)*abs(ry1)) (cos(theta)*abs(rx2) - sin(theta)*abs(ry2)) (-cos(theta)*abs(ry1)-sin(theta)*abs(rx1)) (cos(theta)*abs(ry2)+sin(theta)*abs(rx2))]     
+% elseif((rx1<0)&&(rx2<0))
+%     Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
+%        -cos(theta) cos(theta) sin(theta) sin(theta)
+%        (cos(theta)*abs(rx1) - sin(theta)*abs(ry1)) (cos(theta)*abs(rx2) - sin(theta)*abs(ry2)) (cos(theta)*abs(ry1)-sin(theta)*abs(rx1)) (cos(theta)*abs(ry2)+sin(theta)*abs(rx2))]
+% elseif((rx1>0)&&(rx2>0))
+%     Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
+%        -cos(theta) cos(theta) sin(theta) sin(theta)
+%        (cos(theta)*abs(rx1) - sin(theta)*abs(ry1)) (-cos(theta)*abs(rx2) - sin(theta)*abs(ry2)) (-cos(theta)*abs(ry1)+sin(theta)*abs(rx1)) (-cos(theta)*abs(ry2)-sin(theta)*abs(rx2))]
+% elseif((rx1<0)&&(rx2>0))
+%     Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
+%        -cos(theta) cos(theta) sin(theta) sin(theta)
+%        (cos(theta)*abs(rx1) + sin(theta)*abs(ry1)) (-cos(theta)*abs(rx2) - sin(theta)*abs(ry2)) (cos(theta)*abs(ry1)-sin(theta)*abs(rx1)) (-cos(theta)*abs(ry2)-sin(theta)*abs(rx2))]
+% end
+if(xf1r<Cxr)
 Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
        -cos(theta) cos(theta) sin(theta) sin(theta)
-       (-cos(theta)*rx2 - sin(theta)*ry2) (-cos(theta)*rx1 - sin(theta)*ry1) (-cos(theta)*ry1+sin(theta)*rx1) (cos(theta)*ry2-sin(theta)*rx2)];
-       
+       (cos(theta)*abs(xf1r-Cxr) -sin(theta)*abs(yf1r-Cyr)) (cos(theta)*abs(xf2r-Cxr) + sin(theta)*abs(yf2r-Cyr)) (-cos(theta)*abs(yf1r-Cyr) - sin(theta)*abs(xf1r-Cxr)) (-cos(theta)*abs(yf2r-Cyr) +sin(theta)*abs(xf2r-Cxr))]    
+else
+Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
+       -cos(theta) cos(theta) sin(theta) sin(theta)
+       (-cos(theta)*(xf1r-Cxr) -sin(theta)*(yf1r-Cyr)) (cos(theta)*(xf2r-Cxr) + sin(theta)*(yf2r-Cyr)) (-cos(theta)*(yf1r-Cyr) + sin(theta)*(xf1r-Cxr)) (-cos(theta)*(yf2r-Cyr) +sin(theta)*(xf2r-Cxr))]
+end
 beq = [0
        wg
-       0];
+       -wg*(xcmr-Cxr)];
    
 A = [-1 0 0 0
      0 -1 0 0
@@ -45,12 +67,12 @@ A = [-1 0 0 0
      0 -mu 0 1
      0 -mu 0 -1];
  
- b = [-0.00001
-     -0.00001
-     -0.00001
-     -0.00001
-     -0.00001
-     -0.00001];
+ b = [-0.001
+     -0.001
+      0
+      0
+      0
+      0];
  
 %Objective function identically zero for feasibility type problem
  f = [0 0 0 0];
