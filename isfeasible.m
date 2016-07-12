@@ -1,10 +1,8 @@
-function [xans,fval,exitflag,contact] = isfeasible(Pr,theta,CM,R,XF,mu) %solves optimization problem for given inputs, determining if grasp is feasible
+function [xans,fval,exitflag,contact] = isfeasible(Pr,theta,CM,R,XF,mu,wg) %solves optimization problem for given inputs, determining if grasp is feasible
 %Function that tests wether a non-antipodal grasp is a good grasp or not
 %Returns a vector with the forces xans = [N1,N2,f1,f2];
 %exitflag >0 that indicates a good grasp;
 %contact=1 means object lost contact with object, 0 otherwise.
-
-wg = 9.81; %Weight
 
 rx1 = R{1}(1);%Distances for calculating moments
 ry1 = R{1}(2);
@@ -30,32 +28,17 @@ xcmr = CM(1);%Center of Mass Coordinates
 ycmr = CM(2);
 
 % %Matrices for Linear Programming
-% if((rx1>0)&&(rx2<0))
-%     Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
-%         -cos(theta) cos(theta) sin(theta) sin(theta)
-%        (-cos(theta)*abs(rx1) - sin(theta)*abs(ry1)) (cos(theta)*abs(rx2) - sin(theta)*abs(ry2)) (-cos(theta)*abs(ry1)-sin(theta)*abs(rx1)) (cos(theta)*abs(ry2)+sin(theta)*abs(rx2))]     
-% elseif((rx1<0)&&(rx2<0))
-%     Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
-%        -cos(theta) cos(theta) sin(theta) sin(theta)
-%        (cos(theta)*abs(rx1) - sin(theta)*abs(ry1)) (cos(theta)*abs(rx2) - sin(theta)*abs(ry2)) (cos(theta)*abs(ry1)-sin(theta)*abs(rx1)) (cos(theta)*abs(ry2)+sin(theta)*abs(rx2))]
-% elseif((rx1>0)&&(rx2>0))
-%     Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
-%        -cos(theta) cos(theta) sin(theta) sin(theta)
-%        (cos(theta)*abs(rx1) - sin(theta)*abs(ry1)) (-cos(theta)*abs(rx2) - sin(theta)*abs(ry2)) (-cos(theta)*abs(ry1)+sin(theta)*abs(rx1)) (-cos(theta)*abs(ry2)-sin(theta)*abs(rx2))]
-% elseif((rx1<0)&&(rx2>0))
-%     Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
-%        -cos(theta) cos(theta) sin(theta) sin(theta)
-%        (cos(theta)*abs(rx1) + sin(theta)*abs(ry1)) (-cos(theta)*abs(rx2) - sin(theta)*abs(ry2)) (cos(theta)*abs(ry1)-sin(theta)*abs(rx1)) (-cos(theta)*abs(ry2)-sin(theta)*abs(rx2))]
-% end
+
 if(xf1r<Cxr)
 Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
        -cos(theta) cos(theta) sin(theta) sin(theta)
-       (cos(theta)*abs(xf1r-Cxr) -sin(theta)*abs(yf1r-Cyr)) (cos(theta)*abs(xf2r-Cxr) + sin(theta)*abs(yf2r-Cyr)) (-cos(theta)*abs(yf1r-Cyr) - sin(theta)*abs(xf1r-Cxr)) (-cos(theta)*abs(yf2r-Cyr) +sin(theta)*abs(xf2r-Cxr))]    
+       (cos(theta)*abs(xf1r-Cxr) -sin(theta)*abs(yf1r-Cyr)) (cos(theta)*abs(xf2r-Cxr) + sin(theta)*abs(yf2r-Cyr)) (-cos(theta)*abs(yf1r-Cyr) - sin(theta)*abs(xf1r-Cxr)) (-cos(theta)*abs(yf2r-Cyr) +sin(theta)*abs(xf2r-Cxr))];    
 else
 Aeq = [sin(theta) -sin(theta) cos(theta) cos(theta)
        -cos(theta) cos(theta) sin(theta) sin(theta)
-       (-cos(theta)*(xf1r-Cxr) -sin(theta)*(yf1r-Cyr)) (cos(theta)*(xf2r-Cxr) + sin(theta)*(yf2r-Cyr)) (-cos(theta)*(yf1r-Cyr) + sin(theta)*(xf1r-Cxr)) (-cos(theta)*(yf2r-Cyr) +sin(theta)*(xf2r-Cxr))]
+       (-cos(theta)*(xf1r-Cxr) -sin(theta)*(yf1r-Cyr)) (cos(theta)*(xf2r-Cxr) + sin(theta)*(yf2r-Cyr)) (-cos(theta)*(yf1r-Cyr) + sin(theta)*(xf1r-Cxr)) (-cos(theta)*(yf2r-Cyr) +sin(theta)*(xf2r-Cxr))];
 end
+
 beq = [0
        wg
        -wg*(xcmr-Cxr)];
@@ -94,17 +77,17 @@ A = [-1 0 0 0
  end
  %In case a good grasp,and fingers contacting object, plot itand return values
  if exitflag>0&&((fall1~=1)&&(fall2~=1))
-    hold on
-    axis equal
-    plot([Cxr Dxr Bxr Axr Cxr],[Cyr Dyr Byr Ayr Cyr])
-    text(Axr,Ayr,'A');
-    text(Bxr,Byr,'B');
-    text(Cxr,Cyr,'C');
-    text(Dxr,Dyr,'D');
-    plot(xf1r,yf1r,'o','linewidth',2)
-    plot(xf2r,yf2r,'o','linewidth',2)
-    axis equal
-    plot(xcmr , ycmr,'+')
+%     hold on
+%     axis equal
+%     plot([Cxr Dxr Bxr Axr Cxr],[Cyr Dyr Byr Ayr Cyr])
+%     text(Axr,Ayr,'A');
+%     text(Bxr,Byr,'B');
+%     text(Cxr,Cyr,'C');
+%     text(Dxr,Dyr,'D');
+%     plot(xf1r,yf1r,'o','linewidth',2)
+%     plot(xf2r,yf2r,'o','linewidth',2)
+%     axis equal
+%     plot(xcmr , ycmr,'+')
     contact = 0;
 end
 

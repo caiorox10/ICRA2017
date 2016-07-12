@@ -14,7 +14,7 @@ prompt3 = 'Please input figure corners [A]: ';
 P4in = {input(prompt3)};
 
 P = [P1in P2in P3in P4in];
-
+wg = 9.81;%Weight
 A_ = P{4};
 B_ = P{3};
 C_ = P{1};
@@ -44,12 +44,15 @@ w2 = sqrt((Ay-Cy)^2+(Ax-Cx)^2);
 w = min(w1,w2);
 
 %Size of steps aling each edge
-stepsize = 0.1;%Step for iterating along both sides
-mu = 0.7; %Friction coeficient
+stepsize = 0.05;%Step for iterating along both sides
+mu = 0.4; %Friction coeficient
 good = 0; %Number of good grasps
 antip = 0;
+%Vary points along both edges
+N = 10;
+iterations = N
 
-for theta = 0.1:0.3:1 %Theta angle, that also varies
+for theta = 0.1:0.2:1.1 %Theta angle, that also varies
 %Vertice coordinates after rotation theta
 Axr = cos(theta)*(Ax-Cx) - sin(theta)*(Ay-Cy) + Cx;
 Ayr = sin(theta)*(Ax-Cx) + cos(theta)*(Ay-Cy) + Cy;
@@ -60,21 +63,12 @@ Cyr = sin(theta)*(Cx-Cx) + cos(theta)*(Cy-Cy) + Cy;
 Dxr = cos(theta)*(Dx-Cx) - sin(theta)*(Dy-Cy) + Cx;
 Dyr = sin(theta)*(Dx-Cx) + cos(theta)*(Dy-Cy) + Cy;
     
-%Vary points along both edges
-N = 10;
+
 L1x = linspace(Axr,Bxr,N);
 L2x = linspace(Cxr,Dxr,N);
 L1y = linspace(Ayr,Byr,N);
 L2y = linspace(Cyr,Dyr,N);
 
-% L1= discretizeLine([Axr Ayr], [Bxr Byr], stepsize);
-% L2= discretizeLine([Cxr Cyr], [Dxr Dyr], stepsize);
-% iterations = size(L1,1);%Number of discretized points
-iterations = N
-% xf1r = L1(:,1);
-% yf1r = L1(:,2);
-% xf2r = L2(:,1);
-% yf2r = L2(:,2);
 
 xf1r = L1x;
 yf1r = L1y;
@@ -108,7 +102,6 @@ ycmr = sin(theta)*(xcm-Cx) + cos(theta)*(ycm-Cy) + Cy;
         pt1 = [xf1r(j) yf1r(j)];
         pt2 = [xf2r(i) yf2r(i)];
 
-
         Rconep = rotation(atan(mu));
         Rconen = rotation(-atan(mu)); 
         %Friction cones
@@ -119,23 +112,19 @@ ycmr = sin(theta)*(xcm-Cx) + cos(theta)*(ycm-Cy) + Cy;
         Cone1vecn = Rconen*([e1(1) e1(2)]'-[xf1r(j) yf1r(j)]')+[xf1r(j) yf1r(j)]';
         Cone2vecn = Rconen*([e2(1) e2(2)]'-[xf2r(i) yf2r(i)]')+[xf2r(i) yf2r(i)]';
                     Cone1n = [Cone1vecn(1) Cone1vecn(2)];
-                    Cone2n = [Cone2vecn(1) Cone2vecn(2)];            
-
-            
-            
-            
-        hold on
-        axis equal
-        %Plot friction cones for vizualization 
-        plot([xf1r(j) Cone1p(1)],[yf1r(j) Cone1p(2)]);
-        plot([xf1r(j) Cone1n(1)],[yf1r(j) Cone1n(2)]); 
-        plot([xf2r(i) Cone2p(1)],[yf2r(i) Cone2p(2)]);
-        plot([xf2r(i) Cone2n(1)],[yf2r(i) Cone2n(2)]); 
-        plot([e2p(1) xf2r(i)],[e2p(2) yf2r(i)],'linewidth',5)
-        plot([e1(1) xf1r(j)],[e1(2) yf1r(j)],'linewidth',5)
-        plot([e2(1) xf2r(i)],[e2(2) yf2r(i)],'linewidth',5)
-        plot([e1p(1) xf1r(j)],[e1p(2) yf1r(j)],'linewidth',5)
-        %Test antipodal grasp        
+                    Cone2n = [Cone2vecn(1) Cone2vecn(2)];          
+%         hold on
+%         axis equal
+%         %Plot friction cones for vizualization 
+%         plot([xf1r(j) Cone1p(1)],[yf1r(j) Cone1p(2)]);
+%         plot([xf1r(j) Cone1n(1)],[yf1r(j) Cone1n(2)]); 
+%         plot([xf2r(i) Cone2p(1)],[yf2r(i) Cone2p(2)]);
+%         plot([xf2r(i) Cone2n(1)],[yf2r(i) Cone2n(2)]); 
+%         plot([e2p(1) xf2r(i)],[e2p(2) yf2r(i)],'linewidth',5)
+%         plot([e1(1) xf1r(j)],[e1(2) yf1r(j)],'linewidth',5)
+%         plot([e2(1) xf2r(i)],[e2(2) yf2r(i)],'linewidth',5)
+%         plot([e1p(1) xf1r(j)],[e1p(2) yf1r(j)],'linewidth',5)
+%         %Test antipodal grasp        
         [antipodal] = isantipodal(pt1,pt2,Cone1n,Cone1p,Cone2n,Cone2p);
         
         if antipodal == 1
@@ -158,7 +147,7 @@ ycmr = sin(theta)*(xcm-Cx) + cos(theta)*(ycm-Cy) + Cy;
             ry1 = yf1r(j) - ycmr;
             rx2 = xcmr - xf2r(i);
             ry2 = ycmr - yf2r(i);
-            [Forces,fval,flag,contact] = isfeasible({[Axr Ayr],[Bxr Byr],[Cxr Cyr],[Dxr Dyr]},theta,[xcmr ycmr],{[rx1 ry1],[rx2 ry2]},{[xf1r(j) yf1r(j)],[xf2r(i) yf2r(i)]},mu)
+            [Forces,fval,flag,contact] = isfeasible({[Axr Ayr],[Bxr Byr],[Cxr Cyr],[Dxr Dyr]},theta,[xcmr ycmr],{[rx1 ry1],[rx2 ry2]},{[xf1r(j) yf1r(j)],[xf2r(i) yf2r(i)]},mu,wg)
          
             if((flag>0)&&(contact~=1)) %successful grasp, so save the finger positions and plot
                 good = good + 1;   
@@ -187,6 +176,12 @@ hold on
 
 plot3(f1dis',f2dis',thetav', 'o', 'linewidth',3)
 plot3(f1disan',f2disan',thetan', '+', 'linewidth',3)
+PP = [f1dis' f2dis' thetav'];
+k = boundary(PP);
+trisurf(k,PP(:,1),PP(:,2),PP(:,3),'Facecolor','red','FaceAlpha',0.1)
+PP2 = [f1disan' f2disan' thetan'];
+k2 = boundary(PP2);
+trisurf(k2,PP2(:,1),PP2(:,2),PP2(:,3),'Facecolor','blue','FaceAlpha',0.1)
 
 xlabel('AB')
 ylabel('CD')

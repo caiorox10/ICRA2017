@@ -1,7 +1,6 @@
 function [points] = discretizeLine(p1, p2, stepsize) 
 %Function to discretize points along a line according to a stepsize.
 %Return the discretized points.
-
 dt = stepsize;
 theta = atan2(p2(1,2)-p1(1,2),p2(1,1)-p1(1,1));
 i_comp = dt * cos(theta);
