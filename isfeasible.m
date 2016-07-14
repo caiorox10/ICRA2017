@@ -64,30 +64,30 @@ A = [-1 0 0 0
  fall2 = 0;
  contact = 0;
  
-%Test if fingers are in contact with the object
- if((xf1r>Bxr)||(yf1r>Byr))
-    fprintf('normal contac lost')
-    fall1 = 1;
-    contact = 1;
- end
- if((xf2r>Dxr)||(yf2r>Dyr))
-    fprintf('normal contac lost')
-    fall2 = 1;
-    contact = 1;
- end
+% % %Test if fingers are in contact with the object
+% % %  if((xf1r>Bxr)||(yf1r>Byr))
+% % %     fprintf('normal contac lost')
+% % %     fall1 = 1;
+% % %     contact = 1;
+% % %  end
+% % %  if((xf2r>Dxr)||(yf2r>Dyr))
+% % %     fprintf('normal contac lost')
+% % %     fall2 = 1;
+% % %     contact = 1;
+% % %  end
  %In case a good grasp,and fingers contacting object, plot itand return values
  if exitflag>0&&((fall1~=1)&&(fall2~=1))
-%     hold on
-%     axis equal
-%     plot([Cxr Dxr Bxr Axr Cxr],[Cyr Dyr Byr Ayr Cyr])
-%     text(Axr,Ayr,'A');
-%     text(Bxr,Byr,'B');
-%     text(Cxr,Cyr,'C');
-%     text(Dxr,Dyr,'D');
-%     plot(xf1r,yf1r,'o','linewidth',2)
-%     plot(xf2r,yf2r,'o','linewidth',2)
-%     axis equal
-%     plot(xcmr , ycmr,'+')
+    hold on
+    axis equal
+    plot([Cxr Dxr Bxr Axr Cxr],[Cyr Dyr Byr Ayr Cyr])
+    text(Axr,Ayr,'A');
+    text(Bxr,Byr,'B');
+    text(Cxr,Cyr,'C');
+    text(Dxr,Dyr,'D');
+    plot(xf1r,yf1r,'o','linewidth',2)
+    plot(xf2r,yf2r,'o','linewidth',2)
+    axis equal
+    plot(xcmr , ycmr,'+')
     contact = 0;
 end
 

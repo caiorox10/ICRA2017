@@ -38,11 +38,6 @@ T2y = (By + Cy + Dy)/3;
 xcm = (T1x+T2x)/2;
 ycm = (T1y+T2y)/2;
 
-%Calculate minimun width for fingers (Optional for software, useful for hardware implementation) 
-w1 = sqrt((By-Dy)^2+(Bx-Dx)^2);
-w2 = sqrt((Ay-Cy)^2+(Ax-Cx)^2);
-w = min(w1,w2);
-
 %Size of steps aling each edge
 stepsize = 0.05;%Step for iterating along both sides
 mu = 0.4; %Friction coeficient
@@ -50,9 +45,9 @@ good = 0; %Number of good grasps
 antip = 0;
 %Vary points along both edges
 N = 10;
-iterations = N
-
-for theta = 0.1:0.2:1.1 %Theta angle, that also varies
+iterations = N;
+theta = 0.1;
+for theta = 0.1:0.1:1 %Theta angle, that also varies
 %Vertice coordinates after rotation theta
 Axr = cos(theta)*(Ax-Cx) - sin(theta)*(Ay-Cy) + Cx;
 Ayr = sin(theta)*(Ax-Cx) + cos(theta)*(Ay-Cy) + Cy;
@@ -77,15 +72,18 @@ yf2r = L2y;
 
 xcmr = cos(theta)*(xcm-Cx) - sin(theta)*(ycm-Cy) + Cx;
 ycmr = sin(theta)*(xcm-Cx) + cos(theta)*(ycm-Cy) + Cy;
-%  i = 5;j=iterations;
-      for i = 1:iterations %Loop for varying point finger 2
-          for j = 1:iterations %Loop for varying point finger 1 
+i = 1;j=1;
+       for i = 1:iterations %Loop for varying point finger 2
+           for j = 1:iterations %Loop for varying point finger 1 
 
         %Test for antipodal grasps
-        
+        agnt1 = atan2(Byr-Ayr,Bxr-Axr);
+        agnt2 = atan2(Dyr-Cyr,Dxr-Cxr);
         %Perpendicular normal
-        e1p = [xf1r(j)+0.5*cos(theta) yf1r(j)+0.5*sin(theta)];
-        e2p = [xf2r(i)-0.5*cos(theta) yf2r(i)-0.5*sin(theta)];
+%         e1p = [xf1r(j)+0.5*cos(theta) yf1r(j)+0.5*sin(theta)];
+%         e2p = [xf2r(i)-0.5*cos(theta) yf2r(i)-0.5*sin(theta)];
+        e1p = [xf1r(j)+0.5*cos(agnt1) yf1r(j)+0.5*sin(agnt1)];
+        e2p = [xf2r(i)-0.5*cos(agnt2) yf2r(i)-0.5*sin(agnt2)];
         
         ang1 = -pi/2;
         ang2 = -pi/2;
@@ -124,7 +122,7 @@ ycmr = sin(theta)*(xcm-Cx) + cos(theta)*(ycm-Cy) + Cy;
 %         plot([e1(1) xf1r(j)],[e1(2) yf1r(j)],'linewidth',5)
 %         plot([e2(1) xf2r(i)],[e2(2) yf2r(i)],'linewidth',5)
 %         plot([e1p(1) xf1r(j)],[e1p(2) yf1r(j)],'linewidth',5)
-%         %Test antipodal grasp        
+        %Test antipodal grasp        
         [antipodal] = isantipodal(pt1,pt2,Cone1n,Cone1p,Cone2n,Cone2p);
         
         if antipodal == 1
@@ -147,7 +145,7 @@ ycmr = sin(theta)*(xcm-Cx) + cos(theta)*(ycm-Cy) + Cy;
             ry1 = yf1r(j) - ycmr;
             rx2 = xcmr - xf2r(i);
             ry2 = ycmr - yf2r(i);
-            [Forces,fval,flag,contact] = isfeasible({[Axr Ayr],[Bxr Byr],[Cxr Cyr],[Dxr Dyr]},theta,[xcmr ycmr],{[rx1 ry1],[rx2 ry2]},{[xf1r(j) yf1r(j)],[xf2r(i) yf2r(i)]},mu,wg)
+            [Forces,fval,flag,contact] = isfeasible({[Axr Ayr],[Bxr Byr],[Cxr Cyr],[Dxr Dyr]},theta,[xcmr ycmr],{[rx1 ry1],[rx2 ry2]},{[xf1r(j) yf1r(j)],[xf2r(i) yf2r(i)]},mu,wg);
          
             if((flag>0)&&(contact~=1)) %successful grasp, so save the finger positions and plot
                 good = good + 1;   
@@ -167,9 +165,9 @@ ycmr = sin(theta)*(xcm-Cx) + cos(theta)*(ycm-Cy) + Cy;
             fprintf('No configuration possible \n')
             end
         end
-        end 
-    end   
-      end
+         end 
+     end   
+          end
 
 figure
 hold on
@@ -178,10 +176,10 @@ plot3(f1dis',f2dis',thetav', 'o', 'linewidth',3)
 plot3(f1disan',f2disan',thetan', '+', 'linewidth',3)
 PP = [f1dis' f2dis' thetav'];
 k = boundary(PP);
-trisurf(k,PP(:,1),PP(:,2),PP(:,3),'Facecolor','red','FaceAlpha',0.1)
+trisurf(k,PP(:,1),PP(:,2),PP(:,3),'Facecolor','red')
 PP2 = [f1disan' f2disan' thetan'];
 k2 = boundary(PP2);
-trisurf(k2,PP2(:,1),PP2(:,2),PP2(:,3),'Facecolor','blue','FaceAlpha',0.1)
+trisurf(k2,PP2(:,1),PP2(:,2),PP2(:,3),'Facecolor','blue')
 
 xlabel('AB')
 ylabel('CD')
